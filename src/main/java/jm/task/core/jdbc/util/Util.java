@@ -1,32 +1,50 @@
 package jm.task.core.jdbc.util;
 
-//import com.sun.jdi.connect.spi.Connection;
-import java.sql.Connection;
+import jm.task.core.jdbc.model.User;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.*;
+import java.sql.SQLException;
+import java.util.Properties;
 
 public class Util {
+    private static final String URL = "jdbc:mysql://localhost:3306/mydbtest?useSSL=false&serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASSWORD = "root";
 
-    // реализуйте настройку соеденения с БД
-    private static String URL = "jdbc:mysql://localhost:3306/mydbtest";
-    private static String USER = "root";
-    private static String PASSWORD = "root";
+    private static SessionFactory sessionFactory;
 
-    // Метод для получения соединения
+    // JDBC connection
     public static Connection getConnection() {
-        Connection connection = null;
         try {
-            // Подгрузка драйвера
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Соединение установлено!");
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Ошибка подключения к БД!");
-            e.printStackTrace();
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка подключения к БД (JDBC)", e);
         }
-        return connection;
+    }
+
+    // Hibernate SessionFactory
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            try {
+                Properties props = new Properties();
+                props.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+                props.setProperty("hibernate.connection.url", URL);
+                props.setProperty("hibernate.connection.username", USER);
+                props.setProperty("hibernate.connection.password", PASSWORD);
+                props.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+                props.setProperty("hibernate.show_sql", "true");
+
+                sessionFactory = new Configuration()
+                        .addProperties(props)
+                        .addAnnotatedClass(User.class)
+                        .buildSessionFactory();
+            } catch (Exception e) {
+                throw new RuntimeException("Ошибка создания SessionFactory", e);
+            }
+        }
+        return sessionFactory;
     }
 }
