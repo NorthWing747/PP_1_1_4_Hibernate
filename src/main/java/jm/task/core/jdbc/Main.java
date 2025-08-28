@@ -6,7 +6,7 @@ import jm.task.core.jdbc.model.User;
 
 public class Main {
     public static void main(String[] args) {
-        UserDao userDao = new UserDaoHibernateImpl();
+        //UserDao userDao = new UserDaoHibernateImpl();
 
         userDao.createUsersTable();
 
