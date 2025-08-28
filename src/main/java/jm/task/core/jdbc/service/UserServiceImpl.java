@@ -9,6 +9,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserDao userDao = new UserDaoHibernateImpl();
 
+
     // переопределяем интерфейсы UserService
     @Override
     public void createUsersTable() {
